@@ -4,6 +4,12 @@ import {
   RestExplorerBindings,
   RestExplorerComponent,
 } from '@loopback/rest-explorer';
+import {
+  AuthorizationComponent,
+  AuthorizationDecision,
+  AuthorizationOptions,
+  AuthorizationTags,
+} from '@loopback/authorization';
 import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {ServiceMixin} from '@loopback/service-proxy';
@@ -13,6 +19,7 @@ import { TokenServiceBindings, TokenServiceConstants } from './keys';
 import { JWTService } from './services';
 import { AuthenticationComponent, registerAuthenticationStrategy } from '@loopback/authentication';
 import { JWTAuthenticationStrategy } from './strategies/jwt.strategy';
+import { AuthorizationProvider } from './providers';
 
 export {ApplicationConfig};
 
@@ -40,6 +47,8 @@ export class DeepFeelingsApplication extends BootMixin(
     this.component(RestExplorerComponent);
     this.component(AuthenticationComponent);
 
+    this.setUpAuthorization();
+
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
     this.bootOptions = {
@@ -64,5 +73,19 @@ export class DeepFeelingsApplication extends BootMixin(
       TokenServiceConstants.REFRESH_TOKEN_EXPIRES_IN_VALUE ?? '',
     );
     this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);
-    }
+  }
+
+  setUpAuthorization(): void {
+    const options: AuthorizationOptions = {
+      precedence: AuthorizationDecision.DENY,
+      defaultDecision: AuthorizationDecision.DENY,
+    };
+
+    const binding = this.component(AuthorizationComponent);
+    this.configure(binding.key).to(options);
+
+    this.bind('authorizationProviders.authorizer-provider')
+      .toProvider(AuthorizationProvider)
+      .tag(AuthorizationTags.AUTHORIZER);
+  }
 }

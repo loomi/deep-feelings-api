@@ -1,4 +1,5 @@
 import { authenticate } from '@loopback/authentication';
+import { authorize } from '@loopback/authorization';
 import {
   Count,
   CountSchema,
@@ -22,6 +23,7 @@ import {Category} from '../models';
 import {CategoryRepository} from '../repositories';
 
 @authenticate('jwt')
+@authorize({ allowedRoles: ['admin'] })
 export class CategoryController {
   constructor(
     @repository(CategoryRepository)
@@ -54,6 +56,7 @@ export class CategoryController {
     description: 'Category model count',
     content: {'application/json': {schema: CountSchema}},
   })
+  @authorize.skip()
   async count(
     @param.where(Category) where?: Where<Category>,
   ): Promise<Count> {
@@ -72,6 +75,7 @@ export class CategoryController {
       },
     },
   })
+  @authorize.skip()
   async find(
     @param.filter(Category) filter?: Filter<Category>,
   ): Promise<Category[]> {
@@ -106,6 +110,7 @@ export class CategoryController {
       },
     },
   })
+  @authorize.skip()
   async findById(
     @param.path.string('id') id: string,
     @param.filter(Category, {exclude: 'where'}) filter?: FilterExcludingWhere<Category>
