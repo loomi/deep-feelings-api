@@ -16,9 +16,12 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import {User} from '../models';
+import bcrypt from 'bcrypt';
 import {UserRepository} from '../repositories';
+import { authenticate } from '@loopback/authentication';
 
 export class UserController {
   constructor(
@@ -44,7 +47,29 @@ export class UserController {
     })
     user: Omit<User, 'id'>,
   ): Promise<User> {
-    return this.userRepository.create(user);
+    try {
+      const {
+        password,
+        ...userParams
+      } = user;
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const userWithSameEmail = await this.userRepository.findOne({
+        where: {email: user.email},
+      });
+
+      if (userWithSameEmail) {
+        throw new HttpErrors.BadRequest('Duplicated value: "email"');
+      }
+
+      return await this.userRepository.create({
+        ...userParams,
+        password: hashedPassword,
+      });
+    } catch (err) {
+      throw new HttpErrors.BadRequest((err as {message: string}).message);
+    }
   }
 
   @get('/users/count')
