@@ -1,4 +1,5 @@
 import { authenticate } from '@loopback/authentication';
+import { authorize } from '@loopback/authorization';
 import {
   Count,
   CountSchema,
@@ -22,6 +23,7 @@ import {Question} from '../models';
 import {QuestionRepository} from '../repositories';
 
 @authenticate('jwt')
+@authorize({ allowedRoles: ['admin'] })
 export class QuestionController {
   constructor(
     @repository(QuestionRepository)
@@ -54,6 +56,7 @@ export class QuestionController {
     description: 'Question model count',
     content: {'application/json': {schema: CountSchema}},
   })
+  @authorize.skip()
   async count(
     @param.where(Question) where?: Where<Question>,
   ): Promise<Count> {
@@ -72,6 +75,7 @@ export class QuestionController {
       },
     },
   })
+  @authorize.skip()
   async find(
     @param.filter(Question) filter?: Filter<Question>,
   ): Promise<Question[]> {
@@ -106,6 +110,7 @@ export class QuestionController {
       },
     },
   })
+  @authorize.skip()
   async findById(
     @param.path.string('id') id: string,
     @param.filter(Question, {exclude: 'where'}) filter?: FilterExcludingWhere<Question>
