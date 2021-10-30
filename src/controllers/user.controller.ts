@@ -23,6 +23,7 @@ import bcrypt from 'bcrypt';
 import {UserRepository} from '../repositories';
 import { authenticate } from '@loopback/authentication';
 
+@authenticate('jwt')
 export class UserController {
   constructor(
     @repository(UserRepository)
@@ -34,6 +35,7 @@ export class UserController {
     description: 'User model instance',
     content: {'application/json': {schema: getModelSchemaRef(User)}},
   })
+  @authenticate.skip()
   async create(
     @requestBody({
       content: {

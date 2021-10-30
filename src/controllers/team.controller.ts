@@ -1,3 +1,4 @@
+import { authenticate } from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -20,6 +21,7 @@ import {
 import {Team} from '../models';
 import {TeamRepository} from '../repositories';
 
+@authenticate('jwt')
 export class TeamController {
   constructor(
     @repository(TeamRepository)
