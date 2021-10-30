@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  api:
+    build: '.'
+    env_file:
+      - .env
+    ports:
+      - '${PORT}:${PORT}'
+    volumes:
+      - ./src:/usr/app/src
+      - ./.env:/usr/app/.env
