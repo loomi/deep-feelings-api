@@ -1,3 +1,4 @@
+import { authenticate } from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -20,6 +21,7 @@ import {
 import {Survey} from '../models';
 import {SurveyRepository} from '../repositories';
 
+@authenticate('jwt')
 export class SurveyController {
   constructor(
     @repository(SurveyRepository)
